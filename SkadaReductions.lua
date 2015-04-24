@@ -25,6 +25,7 @@ local reductions = {
 	[145629] = {
 		effect = 0.8,
 		duration = 3
+		school = 126
 	},
 	
 	-- Power Word: Barrier
@@ -34,7 +35,7 @@ local reductions = {
 		aura = 81782
 	},
 	
-	-- Spirit Link totem
+	-- Spirit Link Totem
 	[98008] = {
 		effect = 0.9,
 		duration = 6,
