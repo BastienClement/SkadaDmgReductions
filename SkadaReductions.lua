@@ -4,11 +4,42 @@ local Skada = Skada
 local floor = math.floor
 local band = bit.band
 
+local CLIENT_VERSION = tonumber((select(4, GetBuildInfo())))
+
 local reductions = {
+	-- Devotion Aura
 	[31821] = {
 		effect = 0.8,
-		duration = 6
-	}
+		duration = 6,
+		school = (CLIENT_VERSION > 60100) and false or 126 -- All damages since 6.2
+	},
+	
+	-- Smoke Bomb
+	-- Untested
+	[76577] = {
+		effect = 0.9,
+		duration = 5
+	},
+	
+	-- Anti-Magic Zone
+	[145629] = {
+		effect = 0.8,
+		duration = 3
+	},
+	
+	-- Power Word: Barrier
+	[62618] = {
+		effect = 0.8,
+		duration = 10,
+		aura = 81782
+	},
+	
+	-- Spirit Link totem
+	[98008] = {
+		effect = 0.9,
+		duration = 6,
+		aura = 98007
+	},
 }
 
 local reductions_count = 0
