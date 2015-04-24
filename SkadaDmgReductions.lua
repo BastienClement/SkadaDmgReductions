@@ -24,7 +24,7 @@ local reductions = {
 	-- Anti-Magic Zone
 	[145629] = {
 		effect = 0.8,
-		duration = 3
+		duration = 3,
 		school = 126
 	},
 	
