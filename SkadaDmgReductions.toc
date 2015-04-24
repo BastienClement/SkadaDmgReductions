@@ -3,4 +3,4 @@
 ## Notes: Count damage reduction effects as healing
 ## Dependencies: Skada
 
-SkadaReductions.lua
+SkadaDmgReductions.lua
