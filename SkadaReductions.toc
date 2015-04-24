@@ -1,0 +1,6 @@
+## Interface: 60200
+## Title: Skada |r[|caaedc99fDamage reductions|r]
+## Notes: Count damage reduction effects as healing
+## Dependencies: Skada
+
+SkadaReductions.lua
