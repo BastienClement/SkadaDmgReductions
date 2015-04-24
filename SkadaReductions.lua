@@ -6,7 +6,7 @@ local band = bit.band
 
 local reductions = {
 	[31821] = {
-		effect = 0.8
+		effect = 0.8,
 		duration = 6
 	}
 }
@@ -26,8 +26,8 @@ local function log_reduction(set, dmg)
 		if reduction.activation + reduction.duration < dmg.time then
 			reductions_active[id] = nil
 			reductions_count = reductions_count - 1
-		elseif UnitAura(dmg.playerid, reduction.name) then
-			total_effect = total_effect * reductions.effect
+		elseif UnitAura(dmg.playername, reduction.auraname) and (not reduction.school or band(reduction.school, dmg.school) ~= 0) then
+			total_effect = total_effect * reduction.effect
 			sources[id] = reduction
 			sources_count = sources_count + 1
 		end
@@ -95,12 +95,13 @@ end
 local dmg = {}
 
 local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	if reductions_count < 1 then do return end
-	local _, _, _, samount = ...
+	if reductions_count < 1 then return end
+	local _, _, _, samount, _, sschool = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
+	dmg.school = sschool
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
@@ -108,12 +109,13 @@ local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
 end
 
 local function SwingDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	if reductions_count < 1 then do return end
-	local samount = ...
+	if reductions_count < 1 then return end
+	local samount, _, sschool = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
+	dmg.school = sschool
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
@@ -126,24 +128,21 @@ Skada:RegisterForCL(SpellDamage, "SPELL_BUILDING_DAMAGE", {dst_is_interesting_no
 Skada:RegisterForCL(SpellDamage, "RANGE_DAMAGE", {dst_is_interesting_nopets = true})
 Skada:RegisterForCL(SwingDamage, "SWING_DAMAGE", {dst_is_interesting_nopets = true})
 
-local function SpellCast(_, srcGUID, srcName, _, _, _, _, _, ...)
-	local spellId, spellName, spellSchool = ...
+local function SpellCast(_, _, srcGUID, srcName, _, _, _, _, ...)
+	local spellId, spellName = ...
 	local reduction = reductions[spellId]
 	
 	if reduction then
-		if reduction.school and band(spellSchool, reduction.school) == 0 then
-			return
-		end
-		
 		if not reduction.name then
 			reduction.name = spellName
+			reduction.auraname = GetSpellInfo(reduction.aura or spellId)
 		end
 		
 		reduction.sourceid = srcGUID
 		reduction.sourcename = srcName
 		reduction.activation = GetTime()
 		
-		reductions_active[spellId] = nil
+		reductions_active[spellId] = reduction
 		reductions_count = reductions_count + 1
 	end
 end
