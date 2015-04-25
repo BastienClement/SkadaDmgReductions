@@ -187,10 +187,32 @@ local raid_effects = {
 
 local personnal_effects = {
 	[498] = true, -- Divine Protection
+	[31850] = true, -- Ardent Defender
+	[86659] = true, -- Guardian of Ancient Kings
+	[132403] = true, -- Shield of the Righteous
+	[48792] = true, -- Icebound Fortitude
+	[49222] = true, -- Bone Shield
+	[871] = true, -- Shield Wall
+	[118038] = true, -- Die by the Sword
+	[61336] = true, -- Survical Instincts
+	[22812] = true, -- Barkskin
+	[115203] = true, -- Fortifying Brew
+	[122783] = true, -- Diffuse Magic
+	[122278] = true, -- Dampen Harm
+	[115176] = true, -- Zen Meditation
+	[47585] = true, -- Dispersion
+	[108271] = true, -- Astral Shift
+	[30823] = true, -- Shamanistic Rage
+	[104773] = true, -- Unending Resolve
+	[19263] = true, -- Deterrence
 }
 
 local external_effects = {
 	[6940] = true, -- Hand of Sacrifice
+	[114039] = true, -- Hand of Purity
+	[33206] = true, -- Pain Suppression
+	[102342] = true, -- Ironbark
+	[114030] = true, -- Vigilance
 }
 
 --------------------------------------------------------------------------------
