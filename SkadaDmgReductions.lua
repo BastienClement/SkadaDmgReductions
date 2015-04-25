@@ -13,45 +13,167 @@ local effects = {
 	--- ### RAID WIDE EFFECTS ### ---
 	
 	[31821] = { -- Devotion Aura
-		reduction = 0.2,
+		reduction = 0.20,
 		duration = 6,
 		school = (CLIENT_VERSION > 60100) and ALL_DMG or MAGICAL_DMG -- All damages since 6.2
 	},
 	[51052] = { -- Anti-Magic Zone
-		reduction = 0.2,
+		reduction = 0.20,
 		duration = 3,
 		aura = 145629,
 		school = MAGICAL_DMG
 	},
 	[62618] = { -- Power Word: Barrier
-		reduction = 0.2,
+		reduction = 0.20,
 		duration = 10,
 		aura = 81782
 	},
 	[76577] = { -- Smoke Bomb [not tested]
-		reduction = 0.1,
-		duration = 5
+		reduction = 0.10,
+		duration = 7
 	},
 	[98008] = { -- Spirit Link Totem
-		reduction = 0.1,
+		reduction = 0.10,
 		duration = 6,
 		aura = 98007
 	},
 	
 	--- ### PERSONAL EFFECTS ### ---
 	
+	-- PALADIN
 	[498] = { -- Divine Protection
-		reduction = function(aura) return aura[16] == 0 and 0.4 or 0.2 end,
+		reduction = function(aura) return aura[16] == 0 and 0.40 or 0.20 end,
 		duration = 8,
 		school = function(aura) return aura[16] == 0 and MAGICAL_DMG or ALL_DMG end
+	},
+	[31850] = { -- Ardent Defender
+		-- TODO: Check AD glyph
+		reduction = 0.20,
+		duration = 10
+	},
+	[86659] = { -- Guardian of Ancient Kings
+		reduction = 0.50,
+		duration = 10
+	},
+	[132403] = { -- Shield of the Righteous
+		reduction = function(aura) return aura[15] / -100 end,
+		duration = 3,
+		school = PHYSICAL_DMG
+	},
+	
+	-- DEATHKNIGHT
+	[48792] = { -- Icebound Fortitude
+		-- FIXME: Blood have +30%
+		reduction = 0.20,
+		duration = 8
+	},
+	[49222] = { -- Bone Shield
+		reduction = 0.20,
+		duration = 300
+	},
+	
+	-- WARRIOR
+	[871] = { -- Shield Wall
+		-- TODO: Check SW glyph
+		reduction = 0.40,
+		duration = 8
+	},
+	[118038] = { -- Die by the Sword
+		-- TODO: Check Improved Die by the Sword
+		reduction = 0.20,
+		duration = 8
+	},
+	
+	-- DROOD
+	[61336] = { -- Survical Instincts
+		reduction = 0.50,
+		duration = 6
+	},
+	[22812] = { -- Barkskin
+		reduction = 0.20,
+		duration = 12
+	},
+	
+	-- MONK
+	[115203] = { -- Fortifying Brew
+		-- TODO: Check glyphe of FB
+		reduction = 0.20,
+		duration = 15
+	},
+	[122783] = { -- Diffuse Magic
+		reduction = 0.90, -- FIXME: Same as Dispersion
+		duration = 6,
+		school = MAGICAL_DMG
+	},
+	[122278] = { -- Dampen Harm
+		reduction = 0.50, -- FIXME: Doesn't affect attacks < 15% of max HP
+		duration = 90,
+		school = PHYSICAL_DMG
+	},
+	[115176] = { -- Zen Meditation
+		reduction = 0.90, -- FIXME: Same as Dispersion
+		duration = 8
+	},
+	
+	-- PRIEST
+	[47585] = { -- Dispersion
+		-- FIXME: Huge reduction... 
+		-- I did not include Divine Shield, should I include Dispersion?
+		-- FIXME: Doesn't handle Glyph of Delayed Coalescence
+		reduction = 0.90,
+		duration = 6
+	},
+	
+	-- SHAMAN
+	[108271] = { -- Astral Shift
+		reduction = 0.40,
+		duration = 6
+	},
+	[30823] = { -- Shamanistic Rage
+		-- TODO: Check Glyph of Shamanistic Resolve
+		reduction = 30,
+		duration = 15
+	},
+	
+	-- WARLOCK
+	[104773] = { -- Unending Resolve
+		-- TODO: Check Glyph of Strengthened Resolve
+		-- TODO: Check Glyph of Unending Resolve
+		reduction = 0.40,
+		duration = 8
+	},
+	
+	-- HUNTER
+	[19263] = { -- Deterrence
+		-- TODO: Check Glyph of Deterrence
+		reduction = 0.30,
+		duration = 5
 	},
 	
 	--- ### EXTERNAL EFFECTS ### ---
 	
 	[6940] = { -- Hand of Sacrifice
-		reduction = 0.3,
+		reduction = 0.30,
 		duration = 12,
+		-- Check if Hand of Sacrifice is glyphed
 		validate = function(aura) return aura[15] == 0 end
+	},
+	[114039] = { -- Hand of Purity
+		-- FIXME: doesn't handle periodic dmg reduction
+		reduction = 0.15,
+		duration = 6
+	},
+	[33206] = { -- Pain Suppression
+		reduction = 0.40,
+		duration = 8
+	},
+	[102342] = { -- Ironbark
+		reduction = 0.20,
+		duration = 12
+	},
+	[114030] = { -- Vigilance
+		reduction = 0.30,
+		duration = 12
 	},
 }
 
@@ -83,7 +205,7 @@ local sources_count = 0
 local effects_product = 1
 local effects_sum = 0
 
-local function check_instance(set, id, instance, dmg)
+local function check_instance(set, id, instance, dmg, rem_missing)
 	local effect = effects[id]
 	local expired = false
 	local aura
@@ -107,6 +229,7 @@ local function check_instance(set, id, instance, dmg)
 		set[id] = nil
 		return
 	elseif not aura then
+		if rem_missing then set[id] = nil end
 		return
 	end
 	
@@ -119,7 +242,7 @@ local function check_instance(set, id, instance, dmg)
 		else
 			school_mask = effect.school
 		end
-		school_valid = band(school_mask, dmg.school) ~= 0
+		school_valid = band(255 - school_mask, dmg.school) == 0
 	end
 	
 	if school_valid then
@@ -152,14 +275,14 @@ local function log_reduction(set, dmg)
 	
 	-- Handle raid-wide effects
 	for id, instance in pairs(raid_effects_active) do
-		check_instance(raid_effects_active, id, instance, dmg)
+		check_instance(raid_effects_active, id, instance, dmg, false)
 	end
 	
 	-- Handle player effect
 	local player_effects = players_effects_active[dmg.playerid]
 	if player_effects then
 		for id, instance in pairs(player_effects) do
-			check_instance(player_effects, id, instance, dmg)
+			check_instance(player_effects, id, instance, dmg, true)
 		end
 		if not next(player_effects) then
 			players_effects_active[dmg.playerid] = nil
@@ -311,7 +434,7 @@ local function SpellCast(_, _, srcGUID, srcName, _, dstGUID, dstName, _, ...)
 	player_effects[spellId] = {
 		sourceid = srcGUID,
 		sourcename = srcName,
-		expire = GetTime() + effect.duration
+		expire = GetTime() + effect.duration + 0.5
 	}
 end
 
