@@ -131,7 +131,7 @@ local effects = {
 	},
 	[30823] = { -- Shamanistic Rage
 		-- TODO: Check Glyph of Shamanistic Resolve
-		reduction = 30,
+		reduction = 0.30,
 		duration = 15
 	},
 	
