@@ -270,7 +270,7 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	end
 	
 	if school_valid then
-		local reduction = type(effect.reduction) == "function" and effect.reduction(aura) or effect.reduction
+		local reduction = type(effect.reduction) == "function" and effect.reduction(aura, instance) or effect.reduction
 		
 		effects_product = effects_product * (1 - reduction)
 		effects_sum = effects_sum + reduction
