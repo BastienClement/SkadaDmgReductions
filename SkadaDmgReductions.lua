@@ -316,11 +316,19 @@ local function log_reduction(set, dmg)
 	if sources_count < 1 then return end
 	
 	-- Compute total prevented amount
-	local prevented = floor(dmg.amount / effects_product - dmg.amount)
+	local total_dmg = floor(dmg.amount / effects_product)
+	local prevented = total_dmg - dmg.amount
 	
 	for _, source in ipairs(sources) do
+		local valid = true
 		local player = Skada:get_player(set, source.id, source.name)
-		if player then
+		
+		-- Dampen Harm
+		if source.effectid == 122278 then
+			valid = (total_dmg / UnitHealthMax(source.name)) >= 0.15
+		end
+		
+		if player and valid then
 			local amount = (source.reduction / effects_sum) * prevented
 			
 			-- Add to player total.
