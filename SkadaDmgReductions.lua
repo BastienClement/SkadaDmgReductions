@@ -107,7 +107,7 @@ local effects = {
 	},
 	[122278] = { -- Dampen Harm
 		reduction = 0.50, -- FIXME: Doesn't affect attacks < 15% of max HP
-		duration = 90,
+		duration = 45,
 		school = PHYSICAL_DMG
 	},
 	[115176] = { -- Zen Meditation
