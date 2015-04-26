@@ -240,17 +240,19 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	end
 	
 	-- Check validate function
-	if not expired and not instance.validated and effect.validate and not effect.validate(aura) then
-		expired = true
-	else
-		instance.validated = true
+	if not expired and not instance.validated and effect.validate then
+		if effect.validate(aura, instance) then
+			instance.validated = true
+		else
+			expired = true
+		end
 	end
 	
 	-- Instance is expired
 	if expired then 
 		set[id] = nil
 		return
-	elseif not aura then
+	elseif next(aura) == nil then
 		if rem_missing then set[id] = nil end
 		return
 	end
@@ -324,10 +326,6 @@ local function log_reduction(set, dmg)
 			-- Add to player total.
 			player.healing = player.healing + amount
 			player.shielding = player.shielding + amount
-			
-			-- Also add to set total damage.
-			set.healing = set.healing + amount
-			set.shielding = set.shielding + amount
 			
 			-- Also add to set total damage.
 			set.healing = set.healing + amount
