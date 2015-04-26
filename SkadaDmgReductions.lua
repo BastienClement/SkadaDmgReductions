@@ -106,9 +106,9 @@ local effects = {
 		school = MAGICAL_DMG
 	},
 	[122278] = { -- Dampen Harm
-		reduction = 0.50, -- FIXME: Doesn't affect attacks < 15% of max HP
-		duration = 45,
-		school = PHYSICAL_DMG
+		-- Special handling for <15% blows
+		reduction = 0.50,
+		duration = 45
 	},
 	[115176] = { -- Zen Meditation
 		reduction = 0.90, -- FIXME: Same as Dispersion
