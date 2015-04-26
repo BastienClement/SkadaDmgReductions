@@ -319,7 +319,8 @@ local function log_reduction(set, dmg)
 	local total_dmg = floor(dmg.amount / effects_product)
 	local prevented = total_dmg - dmg.amount
 	
-	for _, source in ipairs(sources) do
+	for idx = 1, sources_count do
+		local source = sources[idx]
 		local valid = true
 		local player = Skada:get_player(set, source.id, source.name)
 		
