@@ -316,7 +316,7 @@ local function log_reduction(set, dmg)
 	if sources_count < 1 then return end
 	
 	-- Compute total prevented amount
-	local total_dmg = floor(dmg.amount / effects_product)
+	local total_dmg = floor((dmg.amount + dmg.absorbed) / effects_product)
 	local prevented = total_dmg - dmg.amount
 	
 	for idx = 1, sources_count do
@@ -386,12 +386,13 @@ end
 local dmg = {}
 
 local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	local _, _, _, samount, _, sschool = ...
+	local _, _, _, samount, _, sschool, _, _, sabsorbed = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
 	dmg.school = sschool
+	dmg.absorbed = sabsorbed
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
@@ -399,12 +400,13 @@ local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
 end
 
 local function SwingDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	local samount, _, sschool = ...
+	local samount, _, sschool, _, _, sabsorbed = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
 	dmg.school = sschool
+	dmg.absorbed = sabsorbed
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
