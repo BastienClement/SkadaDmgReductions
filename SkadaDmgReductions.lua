@@ -15,6 +15,7 @@ local effects = {
 	[31821] = { -- Devotion Aura
 		reduction = 0.20,
 		duration = 6,
+		aoe = true,
 		school = (CLIENT_VERSION > 60100) and ALL_DMG or MAGICAL_DMG -- All damages since 6.2
 	},
 	[51052] = { -- Anti-Magic Zone
@@ -404,6 +405,7 @@ local dmg = {}
 
 local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
 	local _, _, _, samount, _, sschool = ...
+	if samount == 0 then return end
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
@@ -417,6 +419,7 @@ end
 
 local function SwingDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
 	local samount, _, sschool = ...
+	if samount == 0 then return end
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
@@ -442,7 +445,7 @@ local function SpellAbsorbed(_, _, _, _, _, dstGUID, dstName, _, ...)
 		aAmount = select(8, ...)
 	end
 	
-	if not aAmount then return end
+	if not aAmount or aAmount == 0 then return end
 	
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
