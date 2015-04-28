@@ -61,7 +61,7 @@ local effects = {
 		duration = 10
 	},
 	[132403] = { -- Shield of the Righteous
-		reduction = function(aura) return aura[15] / -100 end,
+		reduction = function(aura) return (aura[15] / -100), true end,
 		duration = 3,
 		school = PHYSICAL_DMG
 	},
