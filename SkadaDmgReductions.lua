@@ -21,21 +21,25 @@ local effects = {
 		reduction = 0.20,
 		duration = 3,
 		aura = 145629,
-		school = MAGICAL_DMG
+		school = MAGICAL_DMG,
+		aoe = true
 	},
 	[62618] = { -- Power Word: Barrier
 		reduction = 0.20,
 		duration = 10,
-		aura = 81782
+		aura = 81782,
+		aoe = true
 	},
 	[76577] = { -- Smoke Bomb [not tested]
 		reduction = 0.10,
-		duration = 7
+		duration = 7,
+		aoe = true
 	},
 	[98008] = { -- Spirit Link Totem
 		reduction = 0.10,
 		duration = 6,
-		aura = 98007
+		aura = 98007,
+		aoe = true
 	},
 	
 	--- ### PERSONAL EFFECTS ### ---
@@ -226,7 +230,7 @@ local sources_count = 0
 local effects_product = 1
 local effects_sum = 0
 
-local function check_instance(set, id, instance, dmg, rem_missing)
+local function check_instance(set, id, instance, dmg)
 	local effect = effects[id]
 	local expired = false
 	local aura
@@ -264,8 +268,15 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	if expired then 
 		set[id] = nil
 		return
-	elseif next(aura) == nil then
-		if rem_missing then set[id] = nil end
+	end
+	
+	-- Aura is not present on target
+	if next(aura) == nil then
+		-- Remove the instance if aura is not an AoE and instance should be
+		-- present for more than 0.5 sec
+		if not effect.aoe and dmg.time - instance.applied > 0.5 then
+			set[id] = nil
+		end
 		return
 	end
 	
@@ -305,14 +316,14 @@ local function log_reduction(set, dmg)
 	
 	-- Handle raid-wide effects
 	for id, instance in pairs(raid_effects_active) do
-		check_instance(raid_effects_active, id, instance, dmg, false)
+		check_instance(raid_effects_active, id, instance, dmg)
 	end
 	
 	-- Handle player effect
 	local player_effects = players_effects_active[dmg.playerid]
 	if player_effects then
 		for id, instance in pairs(player_effects) do
-			check_instance(player_effects, id, instance, dmg, true)
+			check_instance(player_effects, id, instance, dmg)
 		end
 		if not next(player_effects) then
 			players_effects_active[dmg.playerid] = nil
@@ -440,12 +451,15 @@ local function SpellCast(_, _, srcGUID, srcName, _, dstGUID, dstName, _, ...)
 		effect.auraname = GetSpellInfo(effect.aura or spellId)
 	end
 	
+	local now = GetTime()
+	
 	-- Raid-wide effect
 	if raid_effects[spellId] then
 		raid_effects_active[spellId] = {
 			sourceid = srcGUID,
 			sourcename = srcName,
-			expire = GetTime() + effect.duration,
+			applied = now,
+			expire = now + effect.duration + 0.5,
 			cache = {}
 		}
 		return
@@ -472,7 +486,8 @@ local function SpellCast(_, _, srcGUID, srcName, _, dstGUID, dstName, _, ...)
 	player_effects[spellId] = {
 		sourceid = srcGUID,
 		sourcename = srcName,
-		expire = GetTime() + effect.duration + 0.5,
+		applied = now,
+		expire = now + effect.duration + 0.5,
 		cache = {}
 	}
 end
