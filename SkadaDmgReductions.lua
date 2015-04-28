@@ -96,8 +96,7 @@ local effects = {
 	
 	-- MONK
 	[115203] = { -- Fortifying Brew
-		-- TODO: Check glyphe of FB
-		reduction = 0.20,
+		reduction = function(aura) return aura[16] / -100 end,
 		duration = 15
 	},
 	[122783] = { -- Diffuse Magic
