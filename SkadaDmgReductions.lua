@@ -330,10 +330,10 @@ local function log_reduction(set, dmg)
 		end
 	end
 	
-	if sources_count < 1 then return end
+	if sources_count < 1 or effects_product == 1 then return end
 	
 	-- Compute total prevented amount
-	local total_dmg = floor((dmg.amount + dmg.absorbed) / effects_product)
+	local total_dmg = floor(dmg.amount / effects_product)
 	local prevented = total_dmg - dmg.amount
 	
 	for idx = 1, sources_count do
@@ -403,13 +403,12 @@ end
 local dmg = {}
 
 local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	local _, _, _, samount, _, sschool, _, _, sabsorbed = ...
+	local _, _, _, samount, _, sschool = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
 	dmg.school = sschool
-	dmg.absorbed = sabsorbed
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
@@ -417,24 +416,49 @@ local function SpellDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
 end
 
 local function SwingDamage(_, _, _, _, _, dstGUID, dstName, _, ...)
-	local samount, _, sschool, _, _, sabsorbed = ...
+	local samount, _, sschool = ...
 
 	dmg.playerid = dstGUID
 	dmg.playername = dstName
 	dmg.amount = samount
 	dmg.school = sschool
-	dmg.absorbed = sabsorbed
 	dmg.time = GetTime()
 
 	log_reduction(Skada.current, dmg)
 	log_reduction(Skada.total, dmg)
 end
 
+local function SpellAbsorbed(_, _, _, _, _, dstGUID, dstName, _, ...)
+	local chk = ...
+	local spellSchool, aAmount
+	
+	if type(chk) == "number" then
+		-- Spell event
+		spellSchool = select(3, ...)
+		aAmount = select(11, ...)
+	else
+		-- Swing event
+		spellSchool = 1
+		aAmount = select(8, ...)
+	end
+	
+	if not aAmount then return end
+	
+	dmg.playerid = dstGUID
+	dmg.playername = dstName
+	dmg.amount = aAmount
+	dmg.school = spellSchool
+	dmg.time = GetTime()
+	
+	log_reduction(Skada.current, dmg)
+	log_reduction(Skada.total, dmg)
+end
+
 Skada:RegisterForCL(SpellDamage, "SPELL_DAMAGE", {dst_is_interesting_nopets = true})
 Skada:RegisterForCL(SpellDamage, "SPELL_PERIODIC_DAMAGE", {dst_is_interesting_nopets = true})
-Skada:RegisterForCL(SpellDamage, "SPELL_BUILDING_DAMAGE", {dst_is_interesting_nopets = true})
 Skada:RegisterForCL(SpellDamage, "RANGE_DAMAGE", {dst_is_interesting_nopets = true})
 Skada:RegisterForCL(SwingDamage, "SWING_DAMAGE", {dst_is_interesting_nopets = true})
+Skada:RegisterForCL(SpellAbsorbed, "SPELL_ABSORBED", {dst_is_interesting_nopets = true})
 
 --------------------------------------------------------------------------------
 
