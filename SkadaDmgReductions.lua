@@ -231,6 +231,23 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	local expired = false
 	local aura
 	
+	function evaluate(what, default)
+		local fn = effect[what]
+		
+		-- Ensure fn exists and is a function
+		if not fn then return default end
+		if type(fn) ~= "function" then return fn end
+
+		-- Check cached value
+		local cached = instance.cache[what]
+		if cached then return cached end
+		
+		-- Compute the value
+		local value, no_cache = fn(aura, effect, instance, dmg)
+		if not no_cache then instance.cache[what] = value end
+		return value
+	end
+	
 	-- Check expire time
 	if instance.expire < dmg.time then
 		expired = true
@@ -239,12 +256,8 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	end
 	
 	-- Check validate function
-	if not expired and not instance.validated and effect.validate then
-		if effect.validate(aura, instance) then
-			instance.validated = true
-		else
-			expired = true
-		end
+	if not expired and not evaluate("validate", true) then
+		expired = true
 	end
 	
 	-- Instance is expired
@@ -259,17 +272,11 @@ local function check_instance(set, id, instance, dmg, rem_missing)
 	-- Check damage school
 	local school_valid = true
 	if effect.school then
-		local school_mask
-		if type(effect.school) == "function" then
-			school_mask = effect.school(aura)
-		else
-			school_mask = effect.school
-		end
-		school_valid = band(255 - school_mask, dmg.school) == 0
+		school_valid = band(255 - evaluate("school", ALL_DMG), dmg.school) == 0
 	end
 	
 	if school_valid then
-		local reduction = type(effect.reduction) == "function" and effect.reduction(aura, instance) or effect.reduction
+		local reduction = evaluate("reduction", 0)
 		
 		effects_product = effects_product * (1 - reduction)
 		effects_sum = effects_sum + reduction
@@ -438,7 +445,8 @@ local function SpellCast(_, _, srcGUID, srcName, _, dstGUID, dstName, _, ...)
 		raid_effects_active[spellId] = {
 			sourceid = srcGUID,
 			sourcename = srcName,
-			expire = GetTime() + effect.duration
+			expire = GetTime() + effect.duration,
+			cache = {}
 		}
 		return
 	end
@@ -464,7 +472,8 @@ local function SpellCast(_, _, srcGUID, srcName, _, dstGUID, dstName, _, ...)
 	player_effects[spellId] = {
 		sourceid = srcGUID,
 		sourcename = srcName,
-		expire = GetTime() + effect.duration + 0.5
+		expire = GetTime() + effect.duration + 0.5,
+		cache = {}
 	}
 end
 
