@@ -104,6 +104,7 @@ local effects = {
 		reduction = function(aura) return aura[16] / -100 end,
 		duration = 15
 	},
+	--[[
 	[122783] = { -- Diffuse Magic
 		reduction = 0.90, -- FIXME: Same as Dispersion
 		duration = 6,
@@ -118,8 +119,10 @@ local effects = {
 		reduction = 0.90, -- FIXME: Same as Dispersion
 		duration = 8
 	},
+	]]
 	
 	-- PRIEST
+	--[[
 	[47585] = { -- Dispersion
 		-- FIXME: Huge reduction... 
 		-- I did not include Divine Shield, should I include Dispersion?
@@ -127,6 +130,7 @@ local effects = {
 		reduction = 0.90,
 		duration = 6
 	},
+	]]
 	
 	-- SHAMAN
 	[108271] = { -- Astral Shift
