@@ -52,8 +52,7 @@ local effects = {
 		school = function(aura) return aura[16] == 0 and MAGICAL_DMG or ALL_DMG end
 	},
 	[31850] = { -- Ardent Defender
-		-- TODO: Check AD glyph
-		reduction = 0.20,
+		reduction = function(aura) return aura[15] / 100 end,
 		duration = 10
 	},
 	[86659] = { -- Guardian of Ancient Kings
