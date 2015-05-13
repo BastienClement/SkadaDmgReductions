@@ -31,9 +31,11 @@ local effects = {
 		aura = 81782,
 		aoe = true
 	},
-	[76577] = { -- Smoke Bomb [not tested]
+	[76577] = { -- Smoke Bomb
 		reduction = 0.10,
 		duration = 7,
+		debuff = true,
+		aura = 88611,
 		aoe = true
 	},
 	[98008] = { -- Spirit Link Totem
@@ -256,6 +258,8 @@ local function check_instance(set, id, instance, dmg)
 	-- Check expire time
 	if instance.expire < dmg.time then
 		expired = true
+	elseif effect.debuff then
+		aura = { UnitDebuff(dmg.playername, effect.auraname) }
 	else
 		aura = { UnitAura(dmg.playername, effect.auraname) }
 	end
