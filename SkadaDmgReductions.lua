@@ -67,8 +67,7 @@ local effects = {
 	
 	-- DEATHKNIGHT
 	[48792] = { -- Icebound Fortitude
-		-- FIXME: Blood have +30%
-		reduction = 0.20,
+		reduction = function(aura) return aura[17] / -100 end,
 		duration = 8
 	},
 	[49222] = { -- Bone Shield
