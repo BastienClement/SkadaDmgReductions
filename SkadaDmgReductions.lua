@@ -143,9 +143,7 @@ local effects = {
 	
 	-- WARLOCK
 	[104773] = { -- Unending Resolve
-		-- TODO: Check Glyph of Strengthened Resolve
-		-- TODO: Check Glyph of Unending Resolve
-		reduction = 0.40,
+		reduction = function(aura) return aura[17] / -100 end,
 		duration = 8
 	},
 	
