@@ -84,8 +84,7 @@ local effects = {
 		duration = 8
 	},
 	[118038] = { -- Die by the Sword
-		-- TODO: Check Improved Die by the Sword
-		reduction = 0.20,
+		reduction = function(aura) return aura[16] / -100 end,
 		duration = 8
 	},
 	
