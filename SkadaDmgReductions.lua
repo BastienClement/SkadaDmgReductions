@@ -151,8 +151,7 @@ local effects = {
 	
 	-- HUNTER
 	[19263] = { -- Deterrence
-		-- TODO: Check Glyph of Deterrence
-		reduction = 0.30,
+		reduction = function(aura) return aura[19] / -100 end,
 		duration = 5
 	},
 	
