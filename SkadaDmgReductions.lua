@@ -79,8 +79,7 @@ local effects = {
 	
 	-- WARRIOR
 	[871] = { -- Shield Wall
-		-- TODO: Check SW glyph
-		reduction = 0.40,
+		reduction = function(aura) return aura[15] / -100 end,
 		duration = 8
 	},
 	[118038] = { -- Die by the Sword
