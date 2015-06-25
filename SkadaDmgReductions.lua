@@ -16,7 +16,8 @@ local effects = {
 		reduction = 0.20,
 		duration = 6,
 		aoe = true,
-		school = (CLIENT_VERSION > 60100) and ALL_DMG or MAGICAL_DMG -- All damages since 6.2
+		--school = (CLIENT_VERSION > 60100) and ALL_DMG or MAGICAL_DMG
+		school = ALL_DMG
 	},
 	[51052] = { -- Anti-Magic Zone
 		reduction = 0.20,
